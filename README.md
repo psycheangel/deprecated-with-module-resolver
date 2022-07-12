@@ -1,16 +1,16 @@
 # deprecated-with-module-resolver
-testing module resolver usage with deprecated react-native function
+testing module resolver usage with deprecated issue in react-native
 
 **Step 1** 
 
 Install the plugin
 
 ```
-npm install --save-dev babel-plugin-module-resolver
+npm install --save-dev babel-plugin-module-resolver deprecated-react-native-prop-types
 ```
 or
 ```
-yarn add --dev babel-plugin-module-resolver
+yarn add --dev babel-plugin-module-resolver deprecated-react-native-prop-types
 ```
 
 **Step 2**
