@@ -64,17 +64,8 @@ module.exports = {
           return  path.resolve(__dirname, 'resolver/react-native');
         }
         
-        // macos/linux paths
-        // windows change the resolver path to use 
-        //
-        // currentFile.includes('resolver\\react-native\\') === false
-        //
-        // and also change path to the node_modules to 
-        //
-        // currentFile.includes("node_modules\\react-native\\") === false
-        //
-        
-         if(sourcePath === 'react-native' && currentFile.includes("node_modules/react-native/") === false && currentFile.includes('resolver/react-native/') === false){
+     // macos/linux paths
+        // if(sourcePath === 'react-native' && currentFile.includes("node_modules/react-native/") === false && currentFile.includes('resolver/react-native/') === false){
           // console.log('testing',sourcePath, currentFile)
           // return  path.resolve(__dirname, 'resolver/react-native');
         // }
