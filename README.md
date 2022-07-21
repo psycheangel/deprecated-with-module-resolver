@@ -1,5 +1,5 @@
 # deprecated-with-module-resolver
-testing module resolver usage to fix deprecated issue in react-native
+testing module resolver usage to fix deprecated issue in react-native based on discussion in related react-native issue [link](https://github.com/facebook/react-native/issues/33734)
 
 **Step 1** 
 
