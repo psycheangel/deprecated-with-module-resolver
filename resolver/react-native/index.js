@@ -1,25 +1,23 @@
-// ref to https://levelup.gitconnected.com/react-native-typescript-and-react-native-web-an-arduous-but-rewarding-journey-8f46090ca56b
-
 import * as StandardModule from 'react-native';
-// And let's stub out everything that's missing!
 
-delete StandardModule['ViewPropTypes'];
-delete StandardModule['ColorPropType'];
-delete StandardModule['EdgeInsetsPropType'];
-delete StandardModule['PointPropType'];
 
-module.exports = {
-    ...StandardModule,
-    get ViewPropTypes(){
-        return require('deprecated-react-native-prop-types/DeprecatedViewPropTypes');
-    },
-    get ColorPropType(){
-        return require('deprecated-react-native-prop-types/DeprecatedColorPropType');
-    },
-    get EdgeInsetsPropType(){
-        return require('deprecated-react-native-prop-types/DeprecatedEdgeInsetsPropType')
-    },
-    get PointPropType(){
-        return require('deprecated-react-native-prop-types/DeprecatedPointPropType');
+const deprecatedProps = {
+  'ViewPropTypes': require('deprecated-react-native-prop-types/DeprecatedViewPropTypes'),
+  'ColorPropType': require('deprecated-react-native-prop-types/DeprecatedColorPropType'),
+  'EdgeInsetsPropType': require('deprecated-react-native-prop-types/DeprecatedEdgeInsetsPropType'),
+  'PointPropType': require('deprecated-react-native-prop-types/DeprecatedPointPropType'),
+};
+
+// Had to use a proxy because ...StandardModule made think react-native that all modules were 
+// being used and was triggering some unnecessary validations / native dep checks. 
+// This prevents that from happening.
+const objProx = new Proxy(StandardModule, {
+  get(obj, prop) {
+    if (prop in deprecatedProps) {
+        return deprecatedProps[prop];
     }
-}
+    return Reflect.get(...arguments);
+  }
+}); 
+
+module.exports = objProx;
