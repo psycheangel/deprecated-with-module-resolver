@@ -19,25 +19,46 @@ create index.js file inside project folder `resolver/react-native/` with followi
 ```
 import * as StandardModule from 'react-native';
 
-
 const deprecatedProps = {
-  'ViewPropTypes': require('deprecated-react-native-prop-types/DeprecatedViewPropTypes'),
-  'ColorPropType': require('deprecated-react-native-prop-types/DeprecatedColorPropType'),
-  'EdgeInsetsPropType': require('deprecated-react-native-prop-types/DeprecatedEdgeInsetsPropType'),
-  'PointPropType': require('deprecated-react-native-prop-types/DeprecatedPointPropType'),
+  ImagePropTypes: require('deprecated-react-native-prop-types/DeprecatedImagePropType'),
+  TextPropTypes: require('deprecated-react-native-prop-types/DeprecatedTextPropTypes'),
+  ViewPropTypes: require('deprecated-react-native-prop-types/DeprecatedViewPropTypes'),
+  ColorPropType: require('deprecated-react-native-prop-types/DeprecatedColorPropType'),
+  EdgeInsetsPropType: require('deprecated-react-native-prop-types/DeprecatedEdgeInsetsPropType'),
+  PointPropType: require('deprecated-react-native-prop-types/DeprecatedPointPropType'),
 };
 
-// Had to use a proxy because ...StandardModule made think react-native that all modules were 
-// being used and was triggering some unnecessary validations / native dep checks. 
+const imgProx = new Proxy(StandardModule.Image, {
+  get(obj, prop) {
+    if (prop === 'propTypes') return deprecatedProps.ImagePropTypes;
+    return Reflect.get(...arguments);
+  },
+});
+
+const txtProx = new Proxy(StandardModule.Text, {
+  get(obj, prop) {
+    if (prop === 'propTypes') return deprecatedProps.TextPropTypes;
+    return Reflect.get(...arguments);
+  },
+});
+
+// Had to use a proxy because ...StandardModule made think react-native that all modules were
+// being used and was triggering some unnecessary validations / native dep checks.
 // This prevents that from happening.
 const objProx = new Proxy(StandardModule, {
   get(obj, prop) {
     if (prop in deprecatedProps) {
-        return deprecatedProps[prop];
+      return deprecatedProps[prop];
+    }
+    if (prop === 'Image') {
+      return imgProx;
+    }
+    if (prop === 'Text') {
+      return txtProx;
     }
     return Reflect.get(...arguments);
-  }
-}); 
+  },
+});
 
 module.exports = objProx;
 ```
@@ -57,16 +78,21 @@ module.exports = {
     ["module-resolver", {
       "root": ["."],
       resolvePath(sourcePath, currentFile, opts) {
-        if(sourcePath === 'react-native' && currentFile.includes("node_modules\\react-native\\") === false && currentFile.includes('resolver\\react-native\\') === false){
-          console.log('testing',sourcePath, currentFile)
-          return  path.resolve(__dirname, 'resolver/react-native');
+        if (
+          sourcePath === 'react-native' &&
+          !(
+            (
+              currentFile.includes('node_modules/react-native/') || // macos/linux paths
+              currentFile.includes('node_modules\\react-native\\')
+            ) // windows path
+          ) &&
+          !(
+            currentFile.includes('resolver/react-native/') ||
+            currentFile.includes('resolver\\react-native\\')
+          )
+        ) {
+          return path.resolve(__dirname, 'resolver/react-native');
         }
-        
-     // macos/linux paths
-        // if(sourcePath === 'react-native' && currentFile.includes("node_modules/react-native/") === false && currentFile.includes('resolver/react-native/') === false){
-          // console.log('testing',sourcePath, currentFile)
-          // return  path.resolve(__dirname, 'resolver/react-native');
-        // }
         /**
          * The `opts` argument is the options object that is passed through the Babel config.
          * opts = {
